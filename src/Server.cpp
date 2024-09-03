@@ -4,7 +4,7 @@
 #include <ws2tcpip.h>
 #include <thread>
 #include "Server.h"
-#include "patterns.h"
+#include "Patterns.h"
 // Link with ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
 
@@ -25,10 +25,10 @@ Server::Server(std::shared_ptr<UserService> service) : userService(std::move(ser
     // Define server address
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    server_addr.sin_port = htons(54000);
+    server_addr.sin_port = htons(55000);
 
     // Bind the socket to the port
-    if (bind(server_socket, reinterpret_cast<struct sockaddr *>(&server_addr), sizeof(server_addr)) == SOCKET_ERROR) {
+    if (bind(server_socket, (struct sockaddr *)(&server_addr), sizeof(server_addr)) == SOCKET_ERROR) {
         std::cerr << "Bind failed\n";
         closesocket(server_socket);
         WSACleanup();
@@ -43,7 +43,7 @@ Server::Server(std::shared_ptr<UserService> service) : userService(std::move(ser
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Server listening on port 54000\n";
+    std::cout << "Server listening on port 55000\n";
 }
 
 Server::~Server() {

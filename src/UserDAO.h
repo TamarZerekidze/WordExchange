@@ -1,16 +1,10 @@
 #pragma once
 #include "User.h"
-/*
-class IUserDAO {
-public:
-    virtual ~IUserDAO() = default;
-    virtual bool userExists(const std::string &username) = 0;
-    virtual long long addUser(User& user) = 0;
-    virtual bool removeUser(long long uid) = 0;
-    [[nodiscard]] virtual User getUserByUsername(const std::string &username) = 0;
-    virtual bool isValidUser(const std::string &username, const std::string &pass) = 0;
-    /* virtual std::vector<User> getAllUsers() = 0; */
- /*}; */
+
+/* UserDAO class is Database Access Object that uses sqlite commands to retrieve or add information about users in DB.
+ * it adds new user, returns User object with username if it exists, checks if user exists via username and validates user
+ * during login */
+
 class UserDAO{
 public:
     UserDAO();

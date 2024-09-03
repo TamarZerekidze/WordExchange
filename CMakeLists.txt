@@ -20,8 +20,6 @@ add_executable(WordExchange main.cpp sqlite/sqlite3.h sqlite/sqlite3.c
         src/userService.cpp
         src/userService.h
         src/patterns.h
-        src/Handler.cpp
-        src/Handler.h
 )
 
 target_link_libraries(WordExchange ws2_32)

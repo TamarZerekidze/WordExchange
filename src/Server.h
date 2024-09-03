@@ -1,12 +1,14 @@
-#ifndef SERVER_H
-#define SERVER_H
+#pragma once
 
 #include <winsock2.h>
-#include <ws2tcpip.h>
-#include <string>
-#include "UserService.h"
 #include <map>
-#include "patterns.h"
+#include "UserService.h"
+#include "Patterns.h"
+
+/*Server class creates server socket binds it, and makes it listen to a port for incoming connections from client.
+ *this class administers every interaction with database, upon the requests of Client. it uses UserService class
+ * for business logic. has a start() function and handleClient() which is run in different threads.*/
+
 class Server {
 private:
     SOCKET server_socket;
@@ -21,6 +23,4 @@ public:
     void start();
     void handleClient(SOCKET client_socket) const;
 };
-
-#endif // SERVER_H
 

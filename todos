@@ -1,4 +1,18 @@
-connection pool
-smart pointers
-sessions
-sockets
+
++ reinterpret cast -> normal cast
+
+absolute path -> relative path
+
+refactoring userService prompts, CoR
+
+password_hashing
+
+sessions pool for tracking logged in users
+
+response checking in Client, if it is empty and so on.
+
+check on memory leaks and smart pointers, allocations and etc.
+
+clean-up warnings
+
+create constants file

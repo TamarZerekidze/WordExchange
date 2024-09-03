@@ -4,20 +4,9 @@
 #include <chrono>
 #include <ctime>
 
-/*
-class IUser {
-public:
-    virtual ~IUser() = default;
-    [[nodiscard]] virtual long long getId() const = 0;
-    [[nodiscard]] virtual std::string getUsername() const = 0;
-    [[nodiscard]] virtual std::string getPassword() const = 0;
-    [[nodiscard]] virtual time_t getTimeAdded() const = 0;
-
-    virtual void setUserId(long long id) = 0;
-    virtual void setUsername(const std::string &name) = 0;
-    virtual void setPassword(const std::string &pass) = 0;
-    virtual void setDateAdded(time_t dateAdded) = 0;
-}; */
+/* User class represent user object,it has attributes as fields like username, hashed password, when user was created,
+ * aka registration date and user_id(database attribute). it has getter/setter functions to retrieve each field or
+ * change,reset it. and equality operator that checks if two User objects are the same.*/
 
 class User{
 private:

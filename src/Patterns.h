@@ -1,9 +1,16 @@
 
-#ifndef PATTERNS_H
-#define PATTERNS_H
+#pragma once
 
 #include <memory>
 #include "UserService.h"
+
+/* In this file there are several classes which use design patters principle and userService class uses them.
+ * first is Strategy pattern, which has base class - abstract class(interface) which has pure virtual function "execute"
+ * as I have different operations (login and register) each of them implement execute function their way.
+ * however, both these objects are IUserOperation instances during runtime compilation.
+ * I also use Factory pattern, that creates one of these objects based on input.
+ */
+
 class IUserOperation {
 public:
     virtual void execute(SOCKET client_socket) = 0;
@@ -45,5 +52,3 @@ public:
         return nullptr;
     }
 };
-
-#endif //PATTERNS_H

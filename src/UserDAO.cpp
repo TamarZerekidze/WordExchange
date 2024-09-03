@@ -1,8 +1,9 @@
-#include "UserDAO.h"
 #include <iostream>
 #include <sqlite3.h>
-#include "DatabaseConnection.h"
 #include "User.h"
+#include "DatabaseConnection.h"
+#include "UserDAO.h"
+
 /* TODO: throw exceptions instead of couts*/
 UserDAO::UserDAO() = default;
 
@@ -94,8 +95,8 @@ bool UserDAO::removeUser(const long long uid){
     std::unique_ptr<User> user = nullptr;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         const long long id = sqlite3_column_int64(stmt, 0);
-        const std::string uname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-        const std::string password = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        const std::string uname = (const char*)(sqlite3_column_text(stmt, 1));
+        const std::string password = (const char*)(sqlite3_column_text(stmt, 2));
         const time_t time_added = sqlite3_column_int64(stmt, 3);
         user = std::make_unique<User>(uname, password, time_added);
         user->setUserId(id);
