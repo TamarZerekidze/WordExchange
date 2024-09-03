@@ -3,10 +3,10 @@
 using namespace std;
 
 User::User() = default;
-User::User(std::string name, std::string password)
-    : username(std::move(name)), password(std::move(password)), dateAdded(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())) {}
+User::User(string name, string password, string salt)
+    : username(std::move(name)), password(std::move(password)), salt(std::move(salt)), dateAdded(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())) {}
 
-User::User(string name, string password, const time_t dateAdded) : username(std::move(name)), password(std::move(password)), dateAdded(dateAdded) {
+User::User(string name, string password, string salt, const time_t dateAdded) : username(std::move(name)), password(std::move(password)),salt(std::move(salt)) ,dateAdded(dateAdded) {
 } /* TODO: might use & for strings and remove move() */
 
 [[nodiscard]] long long User::getId() const{
@@ -19,6 +19,10 @@ User::User(string name, string password, const time_t dateAdded) : username(std:
 
 [[nodiscard]] string User::getPassword() const{
     return this->password;
+}
+
+[[nodiscard]] string User::getSalt() const{
+    return this->salt;
 }
 
 [[nodiscard]] time_t User::getTimeAdded() const{
@@ -36,6 +40,10 @@ void User::setUsername(const string &name){
 
 void User::setPassword(const string &pass){
     this->password = pass;
+}
+
+void User::setSalt(const string &salt){
+    this->salt = salt;
 }
 
 void User::setDateAdded(const time_t dateAdded){

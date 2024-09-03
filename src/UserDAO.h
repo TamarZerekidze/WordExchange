@@ -13,7 +13,7 @@ public:
     static long long addUser(User& user);
     static bool removeUser(long long uid);
     [[nodiscard]] static std::unique_ptr<User> getUserByUsername(const std::string &username);
-
+    [[nodiscard]] static std::string getSaltByUsername(const std::string &username);
     static bool isValidUser(const std::string &username, const std::string &pass);
     /* std::vector<User> getAllUsers() override; */
 };

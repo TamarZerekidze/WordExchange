@@ -33,7 +33,7 @@ long long UserDAO::addUser(User& user){
     if (userExists(user.getUsername())) return -1;
     sqlite3* db = DatabaseConnection::getInstance().getConnection();
 
-    const std::string sql = "INSERT INTO users (username, password_hash, time_added) VALUES (?, ?, ?);";
+    const std::string sql = "INSERT INTO users (username, password_hash, salt, time_added) VALUES (?, ?, ?, ?);";
     sqlite3_stmt* stmt;
 
     if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
@@ -43,7 +43,8 @@ long long UserDAO::addUser(User& user){
 
     sqlite3_bind_text(stmt, 1, user.getUsername().c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, user.getPassword().c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int64(stmt, 3, user.getTimeAdded());
+    sqlite3_bind_text(stmt, 3, user.getSalt().c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 4, user.getTimeAdded());
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         std::cerr << "Failed to add user: " << sqlite3_errmsg(db) << std::endl;
@@ -83,7 +84,7 @@ bool UserDAO::removeUser(const long long uid){
 [[nodiscard]] std::unique_ptr<User> UserDAO::getUserByUsername(const std::string &username){
     sqlite3* db = DatabaseConnection::getInstance().getConnection();
 
-    const std::string sql = "SELECT id, username, password_hash, time_added FROM users WHERE username = ?;";
+    const std::string sql = "SELECT id, username, password_hash, salt, time_added FROM users WHERE username = ?;";
     sqlite3_stmt* stmt;
 
     if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
@@ -97,8 +98,9 @@ bool UserDAO::removeUser(const long long uid){
         const long long id = sqlite3_column_int64(stmt, 0);
         const std::string uname = (const char*)(sqlite3_column_text(stmt, 1));
         const std::string password = (const char*)(sqlite3_column_text(stmt, 2));
-        const time_t time_added = sqlite3_column_int64(stmt, 3);
-        user = std::make_unique<User>(uname, password, time_added);
+        const std::string salt = (const char*)(sqlite3_column_text(stmt, 3));
+        const time_t time_added = sqlite3_column_int64(stmt, 4);
+        user = std::make_unique<User>(uname, password, salt, time_added);
         user->setUserId(id);
     } else {
         std::cerr << "No user found with username: " << username << std::endl;
@@ -107,6 +109,31 @@ bool UserDAO::removeUser(const long long uid){
     sqlite3_finalize(stmt);
     return user;
 }
+
+[[nodiscard]] std::string UserDAO::getSaltByUsername(const std::string &username) {
+    sqlite3* db = DatabaseConnection::getInstance().getConnection();
+
+    const std::string sql = "SELECT salt FROM users WHERE username = ?;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
+        return "";
+    }
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+    std::string salt;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        salt = (const char*)(sqlite3_column_text(stmt, 0));
+    } else {
+        std::cerr << "No user found with username: " << username << std::endl;
+    }
+
+    sqlite3_finalize(stmt);
+    return salt;
+
+}
+
 
 bool UserDAO::isValidUser(const std::string &username, const std::string &pass){
     sqlite3* db = DatabaseConnection::getInstance().getConnection();

@@ -8,12 +8,14 @@
 #include <sstream>
 #include <random>
 
+#include "src/PasswordHasher.h"
+
 void testUserDAO() {
 
     const std::string username = "tako";
     const std::string password = "dushki";
     const std::time_t dateAdded = std::time(nullptr);
-    User newUser(username, password, dateAdded);
+    User newUser(username, password, "",dateAdded);
 
     if (UserDAO::userExists(username)) {
         std::cout << "User already exists before adding. Test failed." << std::endl;
@@ -70,6 +72,5 @@ bool verify_password(const std::string &input_password, const std::string &store
 
     return input_hash == stored_hash;
 }
-
 
 

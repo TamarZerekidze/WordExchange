@@ -36,7 +36,9 @@ bool UserService::loginUser(const SOCKET client_socket) {
 
     // Ask for password
     const std::string password = prompting("Enter password: ", client_socket);
-    if (UserDAO::isValidUser(username, password)) {
+    const std::string user_salt = UserDAO::getSaltByUsername(username);
+    std::string hashed_password = PasswordHasher::hashPassword(password, user_salt);
+    if (UserDAO::isValidUser(username, hashed_password)) {
         const std::string success = "Login successful!\n";
         send(client_socket, success.c_str(), (int)success.length(), 0);
         return true;
@@ -63,17 +65,19 @@ const std::string username = prompting("Enter username to register: ", client_so
         // Ask for password
         const std::string password = prompting("Enter a password to register: ", client_socket);
         // Create new User and add to database
-        auto newUser = std::make_unique<User>(username, password);
+        const std::string user_salt = this->passwordHash.getStoredSalt();
+        std::string hashed_password = this->passwordHash.hashPassword(password);
+        auto newUser = std::make_unique<User>(username, hashed_password, user_salt);
         if (UserDAO::addUser(*newUser) >= 0) {
             const std::string success = "Registration successful! Do you want to log in? (yes/no) \n";
             if (const std::string input = prompting(success, client_socket); input.find("yes") != std::string::npos) {
                 loginUser(client_socket);
             } else {
-                std::string disconnect = "Disconnecting...\n";
+                const std::string disconnect = "Disconnecting...\n";
                 send(client_socket, disconnect.c_str(), (int)disconnect.length(), 0);
             }
         } else {
-            std::string error = "Registration failed. Please try again later. Disconnecting...\n";
+            const std::string error = "Registration failed. Please try again later. Disconnecting...\n";
             send(client_socket, error.c_str(), (int)error.length(), 0);
         }
     }
