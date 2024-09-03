@@ -59,22 +59,16 @@ void Server::start() {
     }
 }
 
-    void Server::handleClient(const SOCKET client_socket) const {
-    char buffer[1024] = {0};
-
-
-    send(client_socket, "Do you want to login or register? (login/register)\n", 50, 0);
-    recv(client_socket, buffer, 1024, 0);
-    std::string input(buffer);
-    input = std::string(buffer).substr(0, std::string(buffer).find('\n'));
+void Server::handleClient(const SOCKET client_socket) const {
+    const std::string str = "Do you want to login or register? (login/register)\n";
+    const std::string input = UserService::prompting(str, client_socket);
     if (std::unique_ptr<IUserOperation> operation = UserOperationFactory::createOperation(input, userService)) {
         operation->execute(client_socket);
     } else {
         send(client_socket, "Disconnecting...\n", 30, 0);
     }
-
     closesocket(client_socket);  // Close the client socket after disconnect
-    }
+}
 
 
 int main() {
