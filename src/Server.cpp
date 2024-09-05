@@ -7,7 +7,7 @@
 #include "Patterns.h"
 // Link with ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
-
+constexpr int BUF_SIZE = 1024;
 Server::Server(std::shared_ptr<UserService> service) : userService(std::move(service)) {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -59,11 +59,36 @@ void Server::start() {
     }
 }
 
-void Server::handleClient(const SOCKET client_socket) const {
+void Server::handleClient(const SOCKET client_socket) {
     const std::string str = "Do you want to login or register? (login/register)\n";
     const std::string input = UserService::prompting(str, client_socket);
     if (std::unique_ptr<IUserOperation> operation = UserOperationFactory::createOperation(input, userService)) {
-        operation->execute(client_socket);
+        const std::string& uname = operation->execute(client_socket, loggedInUsers, loggedInUserMutex);
+        if (!uname.empty()) {
+            {
+                std::lock_guard lock(loggedInUserMutex);
+                this->loggedInUsers.insert(uname);
+                std::cout << loggedInUsers.size() << std::endl;
+            }
+        }
+        char buffer[BUF_SIZE] = {};
+        auto bytes_rec = recv(client_socket, buffer, BUF_SIZE, 0);
+        if (bytes_rec <= 0) {
+            {
+                std::lock_guard lock(loggedInUserMutex);
+                this->loggedInUsers.erase(uname);
+                std::cout << loggedInUsers.size() << std::endl;
+            }
+        } else if (const std::string from_client = std::string(buffer).substr(0, std::string(buffer).find('\n')); from_client != "yes") {
+            {
+                std::lock_guard lock(loggedInUserMutex);
+                this->loggedInUsers.erase(uname);
+                std::cout << loggedInUsers.size() << std::endl;
+            }
+                const std::string disconnect = "Disconnecting...\n";
+                send(client_socket, disconnect.c_str(), (int)disconnect.length(), 0);
+        }
+
     } else {
         send(client_socket, "Disconnecting...\n", 30, 0);
     }

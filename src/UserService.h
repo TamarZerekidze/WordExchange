@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <winsock2.h>
-
 #include "PasswordHasher.h"
+#include <memory>
 
 /* UserService is a helper class that has two functions, loginUser and registerUser. these two functions
  * contain prompts of Server and have Chain of Responsibility pattern, as validation for login is two steps,
@@ -16,8 +16,8 @@ public:
     UserService() = default;
 
     static std::string prompting(const std::string& from_server, SOCKET client_socket);
-    bool loginUser(SOCKET client_socket);
-    void registerUser(SOCKET client_socket);
+    std::string loginUser(SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex);
+    std::string registerUser(SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex);
 };
 
 

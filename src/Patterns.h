@@ -13,7 +13,7 @@
 
 class IUserOperation {
 public:
-    virtual void execute(SOCKET client_socket) = 0;
+    virtual std::string execute(SOCKET client_socket, std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex) = 0;
     virtual ~IUserOperation() = default;
 };
 
@@ -24,8 +24,8 @@ private:
 public:
     explicit LoginOperation(std::shared_ptr<UserService> service) : userService(std::move(service)) {}
 
-    void execute(const SOCKET client_socket) override {
-        userService->loginUser(client_socket);
+    std::string execute(const SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex) override {
+        return userService->loginUser(client_socket, loggedInUsers, loggedInUserMutex);
     }
 };
 
@@ -36,8 +36,8 @@ private:
 public:
     explicit RegisterOperation(std::shared_ptr<UserService> service) : userService(std::move(service)) {}
 
-    void execute(const SOCKET client_socket) override {
-        userService->registerUser(client_socket);
+    std::string execute(const SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex) override {
+        return userService->registerUser(client_socket, loggedInUsers, loggedInUserMutex);
     }
 };
 
@@ -46,7 +46,8 @@ public:
     static std::unique_ptr<IUserOperation> createOperation(const std::string &input, const std::shared_ptr<UserService>& userService) {
         if (input.find("login") != std::string::npos) {
             return std::make_unique<LoginOperation>(userService);
-        } else if (input.find("register") != std::string::npos) {
+        }
+        if (input.find("register") != std::string::npos) {
             return std::make_unique<RegisterOperation>(userService);
         }
         return nullptr;

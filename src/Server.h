@@ -1,7 +1,7 @@
 #pragma once
 
 #include <winsock2.h>
-#include <map>
+#include <unordered_set>
 #include "UserService.h"
 #include "Patterns.h"
 
@@ -15,12 +15,14 @@ private:
     std::shared_ptr<UserService> userService;
     UserOperationFactory operationFactory{};
     struct sockaddr_in server_addr{};
+    std::mutex loggedInUserMutex;
 
 public:
+    std::unordered_set<std::string> loggedInUsers;
     explicit Server(std::shared_ptr<UserService> service);
     ~Server();
 
     void start();
-    void handleClient(SOCKET client_socket) const;
+    void handleClient(SOCKET client_socket);
 };
 
