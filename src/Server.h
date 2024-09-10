@@ -1,7 +1,10 @@
 #pragma once
 
 #include <winsock2.h>
+#include <mutex>
+#include <queue>
 #include <unordered_set>
+#include <condition_variable>
 #include "UserService.h"
 #include "Patterns.h"
 
@@ -16,13 +19,18 @@ private:
     UserOperationFactory operationFactory{};
     struct sockaddr_in server_addr{};
     std::mutex loggedInUserMutex;
+    std::unordered_set<std::string> loggedInUsers;
 
 public:
-    std::unordered_set<std::string> loggedInUsers;
     explicit Server(std::shared_ptr<UserService> service);
     ~Server();
 
     void start();
+
+    void startMatchmaking();
+
     void handleClient(SOCKET client_socket);
+
+    void startGameSession(std::pair<std::string, SOCKET> player1, std::pair<std::string, SOCKET> player2);
 };
 

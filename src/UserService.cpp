@@ -1,6 +1,7 @@
 
 #include <winsock2.h>
 #include <unordered_set>
+#include <thread>
 #include "UserDAO.h"
 #include "UserService.h"
 constexpr int BUF_SIZE = 1024;
@@ -54,8 +55,9 @@ std::string UserService::loginUser(const SOCKET client_socket,  std::unordered_s
         }
 
     if (UserDAO::isValidUser(username, hashed_password)) {
-        const std::string success = "Login successful! Would you like to be redirected to the gaming page?\n";
+        const std::string success = "Login successful!\n";
         send(client_socket, success.c_str(), (int)success.length(), 0);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         return username;
     }
     const std::string retry = "Invalid password. Do you want to try logging in again? (yes/no)\n";

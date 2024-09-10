@@ -5,14 +5,19 @@ absolute path -> relative path
 
 + refactoring userService prompts, CoR
 
-password_hashing
++ password_hashing
 
-sessions pool for tracking logged in users
++ sessions pool for tracking logged in users
 
-response checking in Client, if it is empty and so on.
++ response checking in Client, if it is empty and so on.
 
 check on memory leaks and smart pointers, allocations and etc.
 
 clean-up warnings
 
 create constants file
+
++wait(1 sec) აკურატულად ცოტა
+ფუნქციებად გატანა თამაშის სესიაშიც და კლიენტის დაჰენდლვაშიც
+კლიენტის მხარეს მოვაგვარო რამენაირად როცა server დისქონექთდება
+სერვერის ctrl c-სას სიგნალის ლამაზი დაჰენდლვა. რომ სერვერი დაიხუროს კარგად.
