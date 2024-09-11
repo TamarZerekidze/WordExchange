@@ -13,7 +13,7 @@
 
 class IUserOperation {
 public:
-    virtual std::string execute(SOCKET client_socket, std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex) = 0;
+    virtual std::string execute(SOCKET client_socket, std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex,  std::mutex& userDaoMutex) = 0;
     virtual ~IUserOperation() = default;
 };
 
@@ -24,8 +24,8 @@ private:
 public:
     explicit LoginOperation(std::shared_ptr<UserService> service) : userService(std::move(service)) {}
 
-    std::string execute(const SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex) override {
-        return userService->loginUser(client_socket, loggedInUsers, loggedInUserMutex);
+    std::string execute(const SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex,  std::mutex& userDaoMutex) override {
+        return userService->loginUser(client_socket, loggedInUsers, loggedInUserMutex,  userDaoMutex);
     }
 };
 
@@ -36,8 +36,8 @@ private:
 public:
     explicit RegisterOperation(std::shared_ptr<UserService> service) : userService(std::move(service)) {}
 
-    std::string execute(const SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex) override {
-        return userService->registerUser(client_socket, loggedInUsers, loggedInUserMutex);
+    std::string execute(const SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex,  std::mutex& userDaoMutex) override {
+        return userService->registerUser(client_socket, loggedInUsers, loggedInUserMutex,  userDaoMutex);
     }
 };
 

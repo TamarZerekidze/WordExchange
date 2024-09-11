@@ -16,10 +16,17 @@ class Server {
 private:
     SOCKET server_socket;
     std::shared_ptr<UserService> userService;
+    std::mutex userDaoMutex;
     UserOperationFactory operationFactory{};
     struct sockaddr_in server_addr{};
     std::mutex loggedInUserMutex;
     std::unordered_set<std::string> loggedInUsers;
+    std::queue<std::pair<std::string, SOCKET> > matchmakingQueue;
+    std::mutex matchmakingMutex;
+    std::condition_variable matchmakingCV;
+    std::set< std::pair<std::string, SOCKET> > playingSet;
+    std::mutex playingMutex;
+    std::condition_variable playingCV;
 
 public:
     explicit Server(std::shared_ptr<UserService> service);
