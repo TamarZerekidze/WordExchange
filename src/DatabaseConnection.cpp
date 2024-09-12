@@ -7,7 +7,7 @@ std::unique_ptr<DatabaseConnection> DatabaseConnection::instance = nullptr;
 std::mutex DatabaseConnection::mtx;
 
 DatabaseConnection::DatabaseConnection() : db(nullptr) {
-    if (sqlite3_open("C:/Users/takusi/CLionProjects/WordExchange/database", &db) != SQLITE_OK) {
+    if (sqlite3_open("../database", &db) != SQLITE_OK) {
         std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
     } else {
         std::cout << "Opened database successfully!" << std::endl;

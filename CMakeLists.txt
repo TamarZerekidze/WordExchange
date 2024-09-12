@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 include_directories(sqlite hash256)
 add_compile_definitions(SQLITE_THREADSAFE=1)
 
-add_executable(WordExchange main.cpp sqlite/sqlite3.h sqlite/sqlite3.c
+add_executable(WordExchange sqlite/sqlite3.h sqlite/sqlite3.c
         src/User.h
         src/User.cpp
         src/UserDAO.cpp
