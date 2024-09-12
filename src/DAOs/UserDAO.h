@@ -1,9 +1,16 @@
 #pragma once
 #include "../Objects/User.h"
 
-/* UserDAO class is Database Access Object that uses sqlite commands to retrieve or add information about users in DB.
- * it adds new user, returns User object with username if it exists, checks if user exists via username and validates user
- * during login */
+/**
+ * @class UserDAO
+ * @brief Manages database operations for user-related data using SQLite commands.
+ *
+ * The `UserDAO` class:
+ * - Adds new users to the database.
+ * - Retrieves a `User` object based on the username if it exists.
+ * - Checks for the existence of a user by username.
+ * - Validates user credentials during login.
+ */
 
 class UserDAO{
 public:

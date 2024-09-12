@@ -6,8 +6,7 @@ User::User() = default;
 User::User(string name, string password, string salt)
     : username(std::move(name)), password(std::move(password)), salt(std::move(salt)), dateAdded(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())) {}
 
-User::User(string name, string password, string salt, const time_t dateAdded) : username(std::move(name)), password(std::move(password)),salt(std::move(salt)) ,dateAdded(dateAdded) {
-} /* TODO: might use & for strings and remove move() */
+User::User(string name, string password, string salt, const time_t dateAdded) : username(std::move(name)), password(std::move(password)),salt(std::move(salt)) ,dateAdded(dateAdded) {}
 
 [[nodiscard]] long long User::getId() const{
     return this->id;

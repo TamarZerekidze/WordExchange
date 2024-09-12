@@ -9,9 +9,10 @@ std::string timeToString(const std::time_t timeFinished) {
     return timeStream.str();
 }
 
+// Construction of tables in string representation.
 std::string createBoard(std::vector<std::pair<std::string, int> >& userBest, std::vector<Session>& userSessions, std::vector<Session>& topSession, double userAv, double av) {
     std::string board;
-    const std::string personalBest = "The best player score obtained with partner(s): \n";
+    const std::string personalBest = " The best player score obtained with partner(s): \n";
     board += personalBest;
     if(userBest.empty()) {
         board += "You have no partner(s)!\n";
@@ -20,7 +21,6 @@ std::string createBoard(std::vector<std::pair<std::string, int> >& userBest, std
         leaderboard << "+-----------------+--------+\n";
         leaderboard << "| Name            | Rounds |\n";
         leaderboard << "+-----------------+--------+\n";
-
         for (const auto&[fst, snd] : userBest) {
             leaderboard << "| " << std::setw(15) << std::left << fst << " | "
                         << std::setw(6) << std::right << snd << " |\n";
@@ -46,7 +46,6 @@ std::string createBoard(std::vector<std::pair<std::string, int> >& userBest, std
                         << std::setw(20) << std::right << timeToString(session.getTimeFinished()) << " |\n";
             rank++;
         }
-
         leaderboard1 << "+------+--------+-----------------+--------+----------------------+\n";
         board += leaderboard1.str();
     }
@@ -62,14 +61,12 @@ std::string createBoard(std::vector<std::pair<std::string, int> >& userBest, std
         leaderboard2 << "+-----------------+-----------------+--------+----------------------+\n";
         leaderboard2 << "| Player 1        | Player 2        | Rounds |       Date           |\n";
         leaderboard2 << "+-----------------+-----------------+--------+----------------------+\n";
-
         for (const auto& session : topSession) {
             leaderboard2 << "| " << std::setw(15) << std::left << session.getPlayer1() << " | "
                         << std::setw(15) << std::left << session.getPlayer2() << " | "
                         << std::setw(6) << std::right << session.getRoundNum() << " | "
                         << std::setw(20) << std::right << timeToString(session.getTimeFinished()) << " |\n";
         }
-
         leaderboard2 << "+-----------------+-----------------+--------+----------------------+\n";
         board += leaderboard2.str();
     }
@@ -77,7 +74,7 @@ std::string createBoard(std::vector<std::pair<std::string, int> >& userBest, std
 }
 
 std::string createSession(const std::vector<std::pair<std::string, std::string> >& gameRounds) {
-    std::string session = "Game Session flow: \n";
+    std::string session = " Game Session flow: \n";
     if(gameRounds.empty()) {
         session += "No rounds!\n";
     } else {

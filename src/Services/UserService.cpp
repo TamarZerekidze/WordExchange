@@ -4,18 +4,16 @@
 #include <thread>
 #include "../DAOs/UserDAO.h"
 #include "UserService.h"
+
 constexpr int BUF_SIZE = 1024;
 
+// Client input
 std::string UserService::prompting(const std::string& from_server, const SOCKET client_socket) {
     send(client_socket, from_server.c_str(), (int)from_server.length(), 0);
     char buffer[BUF_SIZE] = {};
     recv(client_socket, buffer, BUF_SIZE, 0);
     std::string from_client = std::string(buffer).substr(0, std::string(buffer).find('\n'));
     return from_client;
-}
-std::string generateSessionID() {
-    static int counter = 1;
-    return "session" + std::to_string(counter++);
 }
 
 std::string UserService::loginUser(const SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex, std::mutex& userDaoMutex) {

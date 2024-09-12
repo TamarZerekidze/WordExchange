@@ -2,7 +2,6 @@
 #include "DatabaseConnection.h"
 #include <iostream>
 
-
 std::unique_ptr<DatabaseConnection> DatabaseConnection::instance = nullptr;
 std::mutex DatabaseConnection::mtx;
 
@@ -20,7 +19,7 @@ DatabaseConnection::~DatabaseConnection() {
         std::cout << "Closed database connection." << std::endl;
     }
 }
-/* TODO: could return *instance as DatabaseConnection&, safer */
+
 DatabaseConnection& DatabaseConnection::getInstance() {
     std::lock_guard lock(mtx);
     if (!instance) {

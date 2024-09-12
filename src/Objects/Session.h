@@ -3,6 +3,19 @@
 #include <chrono>
 #include <ctime>
 
+/**
+ * @class Session
+ * @brief Represents a game session with player details and session timing.
+ *
+ * The `Session` class holds information about a game session, including:
+ * - A unique session identifier (`id`).
+ * - Usernames of the two players (`player_1`, `player_2`).
+ * - The round number of the session (`roundNum`).
+ * - The finish time of the session (`timeFinished`).
+ *
+ * Provides constructors for initialization and methods to get/set the attributes.
+ */
+
 class Session {
 private:
     long long id = -1;

@@ -8,9 +8,16 @@
 #include "Services/UserService.h"
 #include "Services/Patterns.h"
 
-/*Server class creates server socket binds it, and makes it listen to a port for incoming connections from client.
- *this class administers every interaction with database, upon the requests of Client. it uses UserService class
- * for business logic. has a start() function and handleClient() which is run in different threads.*/
+/**
+ * @class Server
+ * @brief Manages server operations including client connections, matchmaking, and game sessions.
+ *
+ * The `Server` class:
+ * - Creates and listens on a server socket for client connections.
+ * - Handles client requests and interacts with the database via `UserService`.
+ * - Provides functionalities for matchmaking, game management, and viewing leaderboards (global and personal).
+ * - Runs `start()` to initialize the server and `handleClient(SOCKET client_socket)` for client communication in separate threads.
+ */
 
 class Server {
 private:

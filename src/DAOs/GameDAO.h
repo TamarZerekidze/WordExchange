@@ -3,6 +3,17 @@
 #include <vector>
 #include "../Objects/Session.h"
 
+/**
+ * @class GameDAO
+ * @brief Manages game session and player data in the database.
+ *
+ * Provides static methods for:
+ * - Adding sessions (`addSession`).
+ * - Retrieving the best plays and session data (`getUserBestPlay`, `getUserSessions`).
+ * - Getting top sessions and averages (`getTopSession`, `getUserAverage`, `getAverage`).
+ * - Fetching game rounds (`getGameRounds`).
+ */
+
 class GameDAO {
 public:
     GameDAO();

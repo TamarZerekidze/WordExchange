@@ -1,6 +1,3 @@
-//
-// Created by takusi on 9/3/2024.
-//
 
 #include <iostream>
 #include <sstream>
@@ -14,7 +11,6 @@ PasswordHasher::PasswordHasher() : stored_salt(generate_salt()) {}
 std::string PasswordHasher::getStoredSalt() const {
     return stored_salt;
 }
-
 
 std::string PasswordHasher::hashPassword(const std::string &password) const {
     return hashPassword(password, stored_salt);
@@ -36,5 +32,3 @@ std::string PasswordHasher::generate_salt(const size_t length) {
     }
     return ss.str();
 }
-
-

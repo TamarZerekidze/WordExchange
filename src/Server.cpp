@@ -10,9 +10,11 @@
 #include "Services/MenuService.h"
 #include "Services/Patterns.h"
 #include "Objects/Session.h"
-// Link with ws2_32.lib
+
 #pragma comment(lib, "ws2_32.lib")
+
 constexpr int BUF_SIZE = 2048;
+constexpr int PORT = 55000;
 
 Server::Server(std::shared_ptr<UserService> service) : userService(std::move(service)) {
     WSADATA wsaData;
@@ -20,18 +22,16 @@ Server::Server(std::shared_ptr<UserService> service) : userService(std::move(ser
         std::cerr << "WSAStartup failed\n";
         exit(EXIT_FAILURE);
     }
-
     // Create socket
     if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
         std::cerr << "Socket creation failed\n";
         WSACleanup();
         exit(EXIT_FAILURE);
     }
-
     // Define server address
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    server_addr.sin_port = htons(55000);
+    server_addr.sin_port = htons(PORT);
 
     // Bind the socket to the port
     if (bind(server_socket, (struct sockaddr *)(&server_addr), sizeof(server_addr)) == SOCKET_ERROR) {
@@ -40,7 +40,6 @@ Server::Server(std::shared_ptr<UserService> service) : userService(std::move(ser
         WSACleanup();
         exit(EXIT_FAILURE);
     }
-
     // Start listening for client connections
     if (listen(server_socket, SOMAXCONN ) == SOCKET_ERROR) {
         std::cerr << "Listen failed\n";
@@ -48,10 +47,10 @@ Server::Server(std::shared_ptr<UserService> service) : userService(std::move(ser
         WSACleanup();
         exit(EXIT_FAILURE);
     }
-
-    std::cout << "Server listening on port 55000\n";
+    std::cout << "Server listening on port " + std::to_string(PORT) +"\n";
 }
 
+//Destructor for the Server class, which closes socket and does WSA cleanup.
 Server::~Server() {
     closesocket(server_socket);
     WSACleanup();
@@ -88,7 +87,6 @@ void Server::startMatchmaking() {
             }
         }
 
-
         auto player1 = matchmakingQueue.front();
         matchmakingQueue.pop();
         auto player2 = matchmakingQueue.front();
@@ -114,7 +112,7 @@ void Server::playLoop (const std::string& uname, SOCKET client_socket) {
         matchmakingQueue.emplace(uname, client_socket);
         matchmakingCV.notify_one();
     }
-    // wait till game session finishes or something happens to opponent
+    // Wait till partner is available, and then till game session finishes
     {
         std::chrono::seconds timeout_duration(35);
         std::unique_lock gameLock(playingMutex);
@@ -129,7 +127,6 @@ void Server::playLoop (const std::string& uname, SOCKET client_socket) {
     }
 }
 
-
 void Server::handleClient(const SOCKET client_socket) {
     const std::string str = "Do you want to login or register? (login/register/exit)\n";
     const std::string input = UserService::prompting(str, client_socket);
@@ -138,33 +135,34 @@ void Server::handleClient(const SOCKET client_socket) {
         if (uname.empty()) {
             closesocket(client_socket);
             return;
-        }
+        } // uname is logged in player's username
         if (!uname.empty()) {
             {
                 std::lock_guard lock(loggedInUserMutex);
                 this->loggedInUsers.insert(uname);
-                std::cout << loggedInUsers.size() << std::endl;
+                //std::cout << loggedInUsers.size() << std::endl;
             }
         }
+        //main menu that provides user with either seeing leaderboard or playing
         while (true) {
             const std::string success = "Hello to main menu, what would you like to do? (play/leaderboard/exit)\n";
             send(client_socket, success.c_str(), (int)success.length(), 0);
             char buffer[BUF_SIZE] = {};
             auto bytes_rec = recv(client_socket, buffer, BUF_SIZE, 0);
-            if (bytes_rec <= 0) {
+            if (bytes_rec <= 0) { // disconnected
                 {
                     std::lock_guard lock(loggedInUserMutex);
                     this->loggedInUsers.erase(uname);
-                    std::cout << loggedInUsers.size() << std::endl;
+                    //std::cout << loggedInUsers.size() << std::endl;
                 }
                 break;
             }
             const std::string from_client = std::string(buffer).substr(0, std::string(buffer).find('\n'));
-            if (from_client != "play" && from_client != "leaderboard") {
+            if (from_client != "play" && from_client != "leaderboard") { //exited
                 {
                     std::lock_guard lock(loggedInUserMutex);
                     this->loggedInUsers.erase(uname);
-                    std::cout << loggedInUsers.size() << std::endl;
+                    //std::cout << loggedInUsers.size() << std::endl;
                 }
                 const std::string disconnect = "Disconnecting...\n";
                 send(client_socket, disconnect.c_str(), (int)disconnect.length(), 0);
@@ -234,7 +232,6 @@ std::string constructMessage(const std::string& pl1, const std::string& input1, 
     return msg;
 }
 
-
 void Server::startGameSession(std::pair<std::string, SOCKET> player1, std::pair<std::string, SOCKET> player2) {
     std::vector<std::pair<std::string, std::string> > rounds;
     const SOCKET clientSocket1 = player1.second;
@@ -260,6 +257,7 @@ void Server::startGameSession(std::pair<std::string, SOCKET> player1, std::pair<
         if (bytesReceived2 <= 0) {
             disconnectMessage(clientSocket1, player2.first);
         }
+        // If one of them disconnected, the other is returned to the main menu
         if (shouldDisc) {
             {
                 std::unique_lock gameLock(playingMutex);

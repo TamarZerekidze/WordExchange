@@ -1,14 +1,16 @@
-
 #pragma once
-
 #include <memory>
 #include "UserService.h"
 
-/* In this file there are several classes which use design patters principle and userService class uses them.
- * first is Strategy pattern, which has base class - abstract class(interface) which has pure virtual function "execute"
- * as I have different operations (login and register) each of them implement execute function their way.
- * however, both these objects are IUserOperation instances during runtime compilation.
- * I also use Factory pattern, that creates one of these objects based on input.
+/**
+ * @file
+ * @brief Contains classes that implement design patterns, utilized by the `UserService` class.
+ *
+ * This file demonstrates:
+ * - **Strategy Pattern**: An abstract base class (interface) defines a pure virtual `execute` function.
+ *   Concrete implementations provide specific behaviors for operations like login and registration.
+ *   Both implementations are treated as `IUserOperation` instances at runtime.
+ * - **Factory Pattern**: A factory creates instances of `IUserOperation` based on input, selecting the appropriate strategy.
  */
 
 class IUserOperation {

@@ -4,9 +4,18 @@
 #include <chrono>
 #include <ctime>
 
-/* User class represent user object,it has attributes as fields like username, hashed password, when user was created,
- * aka registration date and user_id(database attribute). it has getter/setter functions to retrieve each field or
- * change,reset it. and equality operator that checks if two User objects are the same.*/
+/**
+ * @class User
+ * @brief Represents a user with attributes such as username, hashed password, registration date, and user ID.
+ *
+ * The `User` class manages user data including:
+ * - `username`: The username of the user.
+ * - `hashed_password`: The hashed password for security.
+ * - `registration_date`: When the user was created.
+ * - `user_id`: Unique identifier from the database.
+ *
+ * Provides getter and setter methods for these attributes and an equality operator to compare `User` objects.
+ */
 
 class User{
 private:

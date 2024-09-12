@@ -4,10 +4,15 @@
 #include <mutex>
 #include <memory>
 
-/* DatabaseConnection class uses singleton pattern to avoid creating many connection instances
- * whenever DAO class connects to the database. it creates unique pointer to the instance once dynamically
- * and uses this instance object for future calls. I used smart pointer to avoid memory leaks after the program finishes
- * as they are automatically deallocated after execution is finished. */
+/**
+ * @class DatabaseConnection
+ * @brief Implements a singleton pattern for managing a single database connection.
+ *
+ * The `DatabaseConnection` class uses a singleton pattern to ensure only one instance of the database connection is created.
+ * It employs a unique pointer to manage the instance dynamically, ensuring that the connection is properly deallocated
+ * when the program finishes. The unique pointer prevents memory leaks by automatically deleting the instance when it
+ * goes out of scope or is no longer needed.
+ */
 
 class DatabaseConnection {
 private:
