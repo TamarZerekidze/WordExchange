@@ -22,6 +22,12 @@ add_executable(WordExchange main.cpp sqlite/sqlite3.h sqlite/sqlite3.c
         src/patterns.h
         src/PasswordHasher.cpp
         src/PasswordHasher.h
+        src/menuService.cpp
+        src/menuService.h
+        src/GameDAO.cpp
+        src/GameDAO.h
+        src/Session.cpp
+        src/Session.h
 )
 
 target_link_libraries(WordExchange ws2_32)

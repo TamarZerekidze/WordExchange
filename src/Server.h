@@ -27,6 +27,7 @@ private:
     std::set< std::pair<std::string, SOCKET> > playingSet;
     std::mutex playingMutex;
     std::condition_variable playingCV;
+    std::mutex gameDaoMutex;
 
 public:
     explicit Server(std::shared_ptr<UserService> service);
@@ -35,6 +36,8 @@ public:
     void start();
 
     void startMatchmaking();
+
+    void playLoop(const std::string& uname, SOCKET client_socket);
 
     void handleClient(SOCKET client_socket);
 

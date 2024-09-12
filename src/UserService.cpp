@@ -56,7 +56,7 @@ std::string UserService::loginUser(const SOCKET client_socket,  std::unordered_s
             send(client_socket, disconnect.c_str(), (int)disconnect.length(), 0);
             return "";
         }
-    auto isValid = false;
+    bool isValid = false;
     {
         std::lock_guard daoLock(userDaoMutex);
         const std::string user_salt = UserDAO::getSaltByUsername(username);

@@ -5,14 +5,14 @@
 #include <ws2tcpip.h>
 #include <thread>
 #include "Server.h"
+
+#include "GameDAO.h"
+#include "MenuService.h"
 #include "Patterns.h"
+#include "Session.h"
 // Link with ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
-constexpr int BUF_SIZE = 1024;
-
-
-
-
+constexpr int BUF_SIZE = 2048;
 
 Server::Server(std::shared_ptr<UserService> service) : userService(std::move(service)) {
     WSADATA wsaData;
@@ -108,6 +108,28 @@ void Server::startMatchmaking() {
     }
 }
 
+void Server::playLoop (const std::string& uname, SOCKET client_socket) {
+    {
+        std::lock_guard queueLock(matchmakingMutex);
+        matchmakingQueue.emplace(uname, client_socket);
+        matchmakingCV.notify_one();
+    }
+    // wait till game session finishes or something happens to opponent
+    {
+        std::chrono::seconds timeout_duration(35);
+        std::unique_lock gameLock(playingMutex);
+        auto gameStarting = playingCV.wait_for(gameLock, timeout_duration, [this, uname, client_socket] {
+            return playingSet.contains({uname, client_socket});
+        });
+        if (!gameStarting) return;
+
+        playingCV.wait(gameLock, [this, uname, client_socket] {
+           return !playingSet.contains({uname, client_socket});
+       });
+    }
+}
+
+
 void Server::handleClient(const SOCKET client_socket) {
     const std::string str = "Do you want to login or register? (login/register/exit)\n";
     const std::string input = UserService::prompting(str, client_socket);
@@ -150,30 +172,29 @@ void Server::handleClient(const SOCKET client_socket) {
             }
 
             if (from_client == "play") {
-                {
-                    std::lock_guard queueLock(matchmakingMutex);
-                    matchmakingQueue.emplace(uname, client_socket);
-                    matchmakingCV.notify_one();
-
-                }
-                // wait till game session finishes or something happens to opponent
-                {
-                    std::chrono::seconds timeout_duration(35);
-                    std::unique_lock gameLock(playingMutex);
-                    auto gameStarting = playingCV.wait_for(gameLock, timeout_duration, [this, uname, client_socket] {
-                        return playingSet.contains({uname, client_socket});
-                    });
-                    if (!gameStarting) {
-                        continue;
-                    }
-
-                    playingCV.wait(gameLock, [this, uname, client_socket] {
-                       return !playingSet.contains({uname, client_socket});
-                   });
+                playLoop(uname, client_socket);
+            }
+            if (from_client == "leaderboard") {
+                const std::string leaderboard = MenuService::fetchLeaderboard(uname, gameDaoMutex);
+                send(client_socket, leaderboard.c_str(), (int) leaderboard.length() , 0);
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                const std::string roundMsg = "Would you like to see specific game flow? (yes/no)\n";
+                send(client_socket, roundMsg.c_str(), (int)roundMsg.length(), 0);
+                char buf[BUF_SIZE] = {};
+                recv(client_socket, buf, BUF_SIZE, 0);
+                std::string client_response = std::string(buf).substr(0, std::string(buf).find('\n'));
+                if (client_response == "yes") {
+                    const std::string idMsg = "Please provide game id: \n";
+                    send(client_socket, idMsg.c_str(), (int)idMsg.length(), 0);
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    memset(buf, 0, BUF_SIZE);
+                    recv(client_socket, buf, BUF_SIZE, 0);
+                    client_response = std::string(buf).substr(0, std::string(buf).find('\n'));
+                    const std::string roundTable = MenuService::fetchGameSession(std::stoi(client_response), gameDaoMutex);
+                    send(client_socket, roundTable.c_str(), (int)roundTable.length(), 0);
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
                 }
             }
-            if (from_client == "leaderboard") {}
-
         }
     } else {
         const std::string disc = "Disconnecting...\n";
@@ -215,50 +236,15 @@ std::string constructMessage(const std::string& pl1, const std::string& input1, 
 
 
 void Server::startGameSession(std::pair<std::string, SOCKET> player1, std::pair<std::string, SOCKET> player2) {
+    std::vector<std::pair<std::string, std::string> > rounds;
     const SOCKET clientSocket1 = player1.second;
     const SOCKET clientSocket2 = player2.second;
     const std::string foundOpponent1 = "Game is starting...your partner is " + player2.first + "\n";
     const std::string foundOpponent2 = "Game is starting...your partner is " + player1.first + "\n";
     sendMessages(clientSocket1, clientSocket2, foundOpponent1, foundOpponent2);
     while(true) {
-
         // Notify both players
         sendMessages(clientSocket1, clientSocket2, "Please type the word: \n");
-        /* char buffer[BUF_SIZE] = {};
-        char buffer2[BUF_SIZE] = {};
-        std::string input1;
-        std::string input2;
-
-        memset(buffer, 0, BUF_SIZE);
-        memset(buffer2, 0, BUF_SIZE);
-        int bytesReceived = recv(clientSocket1, buffer, BUF_SIZE, 0);
-        int bytesReceived2 = recv(clientSocket2, buffer2, BUF_SIZE, 0);
-        if (bytesReceived <= 0) {
-            const std::string discMsg = "It seems that " + player1.first +" was disconnected. Game can not proceed.";
-            send(clientSocket2, discMsg.c_str(), (int)discMsg.length(), 0);
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            {
-                std::unique_lock gameLock(playingMutex);
-                playingSet.erase(player1);
-                playingSet.erase(player2);
-            }
-            playingCV.notify_all();
-            return;
-        }
-
-        if (bytesReceived2 <= 0) {
-            const std::string discMsg = "It seems that " + player2.first +" was disconnected. Game can not proceed.\n";
-            send(clientSocket1, discMsg.c_str(), (int)discMsg.length(), 0);
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            {
-                std::unique_lock gameLock(playingMutex);
-                playingSet.erase(player2);
-                playingSet.erase(player1);
-            }
-            playingCV.notify_all();
-            return;
-        } */
-
         char buffer[BUF_SIZE] = {};
         char buffer2[BUF_SIZE] = {};
         std::string input1, input2;
@@ -287,13 +273,17 @@ void Server::startGameSession(std::pair<std::string, SOCKET> player1, std::pair<
         input1 = std::string(buffer).substr(0, std::string(buffer).find('\n'));
         input2 = std::string(buffer2).substr(0, std::string(buffer2).find('\n'));
         sendMessages(clientSocket1, clientSocket2, "Your word recorded.\n" );
-
         // Both players are ready, start the game
         sendMessages(clientSocket1, clientSocket2, "Both words taken in!\n");
-
+        rounds.emplace_back(input1, input2);
         if(input1 == input2) {
             const std::string congrats = "Congratulations, both of you choose: '" + input1 + "' you have matched!\n";
             sendMessages(clientSocket1, clientSocket2, congrats);
+            {
+                std::lock_guard sessionLock(gameDaoMutex);
+                auto gameSession = Session(player1.first, player2.first, (int)rounds.size());
+                GameDAO::addSession(rounds,gameSession);
+            }
             {
                 std::unique_lock gameLock(playingMutex);
                 playingSet.erase(player2);

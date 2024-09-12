@@ -14,7 +14,7 @@ private:
     PasswordHasher passwordHash;
 public:
     UserService() = default;
-
+    ~UserService() = default;
     static std::string prompting(const std::string& from_server, SOCKET client_socket);
     std::string loginUser(SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex,  std::mutex& userDaoMutex);
     std::string registerUser(SOCKET client_socket,  std::unordered_set<std::string>& loggedInUsers, std::mutex& loggedInUserMutex,  std::mutex& userDaoMutex);

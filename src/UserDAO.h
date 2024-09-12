@@ -9,7 +9,6 @@ class UserDAO{
 public:
     UserDAO();
     static bool userExists(const std::string &username);
-
     static long long addUser(User& user);
     static bool removeUser(long long uid);
     [[nodiscard]] static std::unique_ptr<User> getUserByUsername(const std::string &username);
