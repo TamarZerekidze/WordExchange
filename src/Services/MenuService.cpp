@@ -1,6 +1,6 @@
 #include <vector>
 #include "MenuService.h"
-#include "GameDAO.h"
+#include "../DAOs/GameDAO.h"
 
 std::string timeToString(const std::time_t timeFinished) {
     const std::tm localTime = *std::localtime(&timeFinished);

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Session.h"
+#include "../Objects/Session.h"
 
 class GameDAO {
 public:

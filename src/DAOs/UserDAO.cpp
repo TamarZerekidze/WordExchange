@@ -1,6 +1,6 @@
 #include <iostream>
-#include <sqlite3.h>
-#include "User.h"
+#include <../sqlite/sqlite3.h>
+#include "../Objects/User.h"
 #include "DatabaseConnection.h"
 #include "UserDAO.h"
 

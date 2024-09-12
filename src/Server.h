@@ -5,8 +5,8 @@
 #include <queue>
 #include <unordered_set>
 #include <condition_variable>
-#include "UserService.h"
-#include "Patterns.h"
+#include "Services/UserService.h"
+#include "Services/Patterns.h"
 
 /*Server class creates server socket binds it, and makes it listen to a port for incoming connections from client.
  *this class administers every interaction with database, upon the requests of Client. it uses UserService class

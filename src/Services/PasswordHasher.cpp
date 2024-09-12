@@ -7,7 +7,7 @@
 #include <random>
 #include <iomanip>
 #include "PasswordHasher.h"
-#include "sha256.h"
+#include "../../hash256/sha256.h"
 
 PasswordHasher::PasswordHasher() : stored_salt(generate_salt()) {}
 

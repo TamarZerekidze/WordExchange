@@ -6,10 +6,10 @@
 #include <thread>
 #include "Server.h"
 
-#include "GameDAO.h"
-#include "MenuService.h"
-#include "Patterns.h"
-#include "Session.h"
+#include "DAOs/GameDAO.h"
+#include "Services/MenuService.h"
+#include "Services/Patterns.h"
+#include "Objects/Session.h"
 // Link with ws2_32.lib
 #pragma comment(lib, "ws2_32.lib")
 constexpr int BUF_SIZE = 2048;

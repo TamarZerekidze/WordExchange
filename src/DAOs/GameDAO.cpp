@@ -1,6 +1,6 @@
 #include <iostream>
-#include <sqlite3.h>
-#include "Session.h"
+#include <../sqlite/sqlite3.h>
+#include "../Objects/Session.h"
 #include "DatabaseConnection.h"
 #include "GameDAO.h"
 GameDAO::GameDAO() = default;
